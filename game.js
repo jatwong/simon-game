@@ -39,8 +39,9 @@ $(".btn").click(function (e) {
   playButton(userChosenColor);
   animatePress(userChosenColor);
 
-  checkAnswers();
-  if (index === gamePattern.length) {
+  var continueGame = true;
+  continueGame = checkAnswers();
+  if (continueGame && index === gamePattern.length) {
     index = 0;
     setTimeout(nextSequence, 500);
   }
@@ -95,8 +96,11 @@ function checkAnswers() {
     $("h1").text("Game Over, Press any key to restart");
 
     startOver();
+
+    return false;
   } else {
     index++;
+    return true;
   }
 }
 
