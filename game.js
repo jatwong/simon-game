@@ -4,17 +4,13 @@ var buttonColors = ["red", "blue", "green", "yellow"];
 
 var hasStarted = false;
 var level = 0;
+var index = 0;
 
 // start game
 $(document).keydown(function () {
   if (!hasStarted) {
     hasStarted = true;
     nextSequence();
-    ++level;
-    $("h1").text("Level " + level);
-  } else {
-    ++level;
-    $("h1").text("Level " + level);
   }
 });
 
@@ -23,26 +19,31 @@ function nextSequence() {
   var randomNumber = Math.floor(Math.random() * 4);
   var randomChosenColor = buttonColors[randomNumber];
   gamePattern.push(randomChosenColor);
+  ++level;
+  $("h1").text("Level " + level);
 
-  // button animation
-  playButton(randomChosenColor);
-  $("#" + randomChosenColor)
-    .fadeOut(150)
-    .fadeIn(100);
+  setTimeout(function () {
+    // button animation
+    userClickedPattern = [];
+    playButton(randomChosenColor);
+    $("#" + randomChosenColor)
+      .fadeOut(150)
+      .fadeIn(100);
+  }, 300);
 }
 
-// add user pattern to userClickedPattern array
+// on click: add to userClickedPattern, play button sound, check answer
 $(".btn").click(function (e) {
   var userChosenColor = e.target.id;
   userClickedPattern.push(userChosenColor);
-  console.log(userClickedPattern);
-});
+  playButton(userChosenColor);
+  animatePress(userChosenColor);
 
-// button play sound
-$(".btn").click(function (e) {
-  var colorId = e.target.id;
-  playButton(colorId);
-  animatePress(colorId);
+  checkAnswers();
+  if (index === gamePattern.length) {
+    index = 0;
+    setTimeout(nextSequence, 500);
+  }
 });
 
 function playButton(color) {
@@ -78,4 +79,31 @@ function animatePress(currentColor) {
   setTimeout(function () {
     clickedBtn.removeClass("pressed");
   }, 100);
+}
+
+// check answers
+function checkAnswers() {
+  if (userClickedPattern[index] !== gamePattern[index]) {
+    $("body").addClass("game-over");
+    setTimeout(function () {
+      $("body").removeClass("game-over");
+    }, 200);
+
+    var wrong = new Audio("./sounds/wrong.mp3");
+    wrong.play();
+
+    $("h1").text("Game Over, Press any key to restart");
+
+    startOver();
+  } else {
+    index++;
+  }
+}
+
+function startOver() {
+  hasStarted = false;
+  level = 0;
+  gamePattern = [];
+  userClickedPattern = [];
+  index = 0;
 }
